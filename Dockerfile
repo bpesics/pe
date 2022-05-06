@@ -1,5 +1,8 @@
 FROM adoptopenjdk/openjdk11:latest
 
+# assign image to repo
+LABEL org.opencontainers.image.source=https://github.com/bpesics/pe-payment
+
 # Install dependencies
 RUN apt-get update && apt-get install -y sqlite3
 

@@ -1,6 +1,19 @@
 version: '3'
 services:
+
   pleo-antaeus:
     build: .
     ports:
      - "8000:8000"
+    environment:
+      PAYMENT_PROVIDER_ENDPOINT: "http://payment:9000/api/v1/charge"
+    depends_on:
+      - payment
+
+  payment:
+    container_name: payment
+    image: ghcr.io/bpesics/pe-payment:latest
+    ports:
+      - "9000:9000"
+    environment:
+      PYTHONUNBUFFERED: 1
