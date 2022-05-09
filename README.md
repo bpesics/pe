@@ -1,10 +1,28 @@
-# Preface
+# Exercise
 
-We're really happy that you're considering to join us! Here's a challenge that will help us understand your skills and serve as a starting discussion point for the interview.
+## Changes
+- a GitHub Actions based workflow has been added to build and publish the *Antaeus* container image
+  - the resulting image is available at `ghcr.io/bpesics/pe:latest`
+  - a `LABEL` has been added to the `Dockerfile` to assign images to the forked repo
+- a `docker-compose-payment.yml` has been added to support testing with the new payment service
+  - usage: `docker-compose -f docker-compose-payment.yml up`
 
-We're not expecting that everything will be done perfectly as we value your time. You're encouraged to point out possible improvements during the interview though!
+## Solution
 
-Have fun!
+### Payment service
+
+See https://github.com/bpesics/pe-payment
+
+## Notes
+```
+curl http://localhost:8000/rest/health
+curl -s http://localhost:8000/rest/v1/invoices | jq
+curl -X POST http://localhost:8000/rest/v1/invoices/pay
+```
+
+---
+
+# Original README
 
 ## The challenge
 
