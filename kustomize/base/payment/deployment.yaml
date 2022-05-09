@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment
+spec:
+  strategy:
+    type: Recreate
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: backend
+        image: ghcr.io/bpesics/pe-payment:latest
+        imagePullPolicy: Always
+        ports:
+        - name: backend-http
+          containerPort: 9000
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: backend-http
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: backend-http

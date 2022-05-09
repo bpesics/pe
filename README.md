@@ -6,6 +6,7 @@
   - a `LABEL` has been added to the `Dockerfile` to assign images to the forked repo
 - a `docker-compose-payment.yml` has been added to support testing with the new payment service
   - usage: `docker-compose -f docker-compose-payment.yml up`
+- added a `Makefile`, `kustomize/` folder and an [asdf](https://asdf-vm.com/) `.tool-versions` file for deployment
 
 ## Solution
 
@@ -13,7 +14,72 @@
 
 See https://github.com/bpesics/pe-payment
 
-## Notes
+### Deployment overview
+
+As a good practice the project attempts to pin tool versions:
+* this is only `kubectl` and `jq` at this point
+* if you already have these installed it's not a hard prerequisite to install [asdf](https://asdf-vm.com/)
+* if you need to install these tools install asdf and use the provided `make` target: `make install-asdf-tools`
+
+*Kustomize* (should be built into recent kubectl versions) is used for the deployment with a fairly conventional structure:
+```
+kustomize
+├── base
+│   ├── antaeus
+│   └── payment
+└── overlays
+    └── testing  # let's imagine the exercise is deployed into the "testing" environemnt
+```
+
+### Deployment
+
+* observe what would be deployed: `kubectl kustomize kustomize/overlays/testing/ | less`
+* dry-run with client side strategy: `kubectl apply -k kustomize/overlays/testing/  --dry-run=client`
+* apply configuration: `kubectl apply -k kustomize/overlays/testing/`
+  * should see something along the lines of this:
+    ```
+    namespace/app-antaeus created
+    namespace/app-payment created
+    service/antaeus created
+    service/payment created
+    deployment.apps/antaeus created
+    deployment.apps/payment created
+    ```
+
+### Testing the deployment
+
+Observe logs:
+```
+k -n app-antaeus logs deployment.apps/antaeus -f
+k -n app-payment logs deployment.apps/payment -f
+```
+
+For in-cluster testing the command `make shell-multitool` is provided. Once in the shell:
+```
+curl http://payment.app-payment:9000/health
+curl http://antaeus.app-antaeus:8000/rest/health
+
+# count number of PAID invoices
+curl -s http://antaeus.app-antaeus:8000/rest/v1/invoices | jq | grep PAID | wc -l
+
+# pay all invoices
+curl -X POST http://antaeus.app-antaeus:8000/rest/v1/invoices/pay
+
+# count number of PAID invoices again
+curl -s http://antaeus.app-antaeus:8000/rest/v1/invoices | jq | grep PAID | wc -l
+```
+
+### External access
+
+The cluster where I did my exercise has no `cloud-controller-manager`. Therefore no `Ingress` is provided but instead more generic `NodePort` type `Service` is configured.
+
+If `kube-proxy` is not restricted to specific IP addresses (and firewall rules also allow) the service should be available on nodes' external interfaces as well, so something like the following should work:
+```
+NODE_IP="<external ip address>"
+curl http://$NODE_IP:30008/rest/health
+```
+
+## Notes for testing Antaeus locally
 ```
 curl http://localhost:8000/rest/health
 curl -s http://localhost:8000/rest/v1/invoices | jq

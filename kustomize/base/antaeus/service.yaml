@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: antaeus
+spec:
+  type: NodePort
+  ports:
+  - name: backend-http
+    port: 8000
+    targetPort: backend-http
+    nodePort: 30008
