@@ -10,3 +10,8 @@ resources:
 - namespace.yaml
 - deployment.yaml
 - service.yaml
+
+configMapGenerator:
+  - name: antaeus-config-env
+    envs:
+      - _antaeus-config-env

@@ -40,6 +40,7 @@ kustomize
     ```
     namespace/app-antaeus created
     namespace/app-payment created
+    configmap/antaeus-config-env-468bcg9db8 created
     service/antaeus created
     service/payment created
     deployment.apps/antaeus created
@@ -50,8 +51,8 @@ kustomize
 
 Observe logs:
 ```
-k -n app-antaeus logs deployment.apps/antaeus -f
-k -n app-payment logs deployment.apps/payment -f
+kubectl -n app-antaeus logs deployment.apps/antaeus -f
+kubectl -n app-payment logs deployment.apps/payment -f
 ```
 
 For in-cluster testing the command `make shell-multitool` is provided. Once in the shell:
@@ -60,13 +61,13 @@ curl http://payment.app-payment:9000/health
 curl http://antaeus.app-antaeus:8000/rest/health
 
 # count number of PAID invoices
-curl -s http://antaeus.app-antaeus:8000/rest/v1/invoices | jq | grep PAID | wc -l
+curl -s http://antaeus.app-antaeus:8000/rest/v1/invoices | jq '[.[] | select(.status == "PAID") ] | length'
 
 # pay all invoices
 curl -X POST http://antaeus.app-antaeus:8000/rest/v1/invoices/pay
 
 # count number of PAID invoices again
-curl -s http://antaeus.app-antaeus:8000/rest/v1/invoices | jq | grep PAID | wc -l
+curl -s http://antaeus.app-antaeus:8000/rest/v1/invoices | jq '[.[] | select(.status == "PAID") ] | length'
 ```
 
 ### External access

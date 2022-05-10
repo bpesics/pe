@@ -1,5 +1,7 @@
 ## How would a new deployment look like for these services? What kind of tools would you use?
 
+The deployment of the *pe(antaeus)* repo should probably not depend on the *pe-payment* repo as it is currently. The *pe-payment* repo should have independent deployment(`kustomize/`) files.
+
 ### Kustomize
 
 In my opionion _Kustomize_ is preferable over _Helm_ for deployments like this (it's documentation leaves a lot to be desired though).

@@ -15,9 +15,9 @@ spec:
         ports:
         - name: backend-http
           containerPort: 8000
-        env:
-        - name: PAYMENT_PROVIDER_ENDPOINT
-          value: "http://payment.app-payment:9000/api/v1/charge"
+        envFrom:
+        - configMapRef:
+            name: antaeus-config-env
 
         startupProbe:
           httpGet:

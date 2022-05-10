@@ -1,0 +1,1 @@
+PAYMENT_PROVIDER_ENDPOINT=http://payment.app-payment:9000/api/v1/charge
