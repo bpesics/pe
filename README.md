@@ -79,6 +79,10 @@ NODE_IP="<external ip address>"
 curl http://$NODE_IP:30008/rest/health
 ```
 
+## Discussion
+
+see [DISCUSSION.md](DISCUSSION.md)
+
 ## Notes for testing Antaeus locally
 ```
 curl http://localhost:8000/rest/health
