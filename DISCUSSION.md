@@ -1,6 +1,11 @@
 ## How would a new deployment look like for these services? What kind of tools would you use?
 
-The deployment of the *pe(antaeus)* repo should probably not depend on the *pe-payment* repo as it is currently. The *pe-payment* repo should have independent deployment(`kustomize/`) files.
+### Additional configuration
+* The deployment of the *pe(antaeus)* repo should probably not depend on the *pe-payment* repo as it is currently. The *pe-payment* repo should have independent deployment(`kustomize/`) files.
+* set resource requests & limits for containers
+* add Ingress resources
+* use a production ready WSGI server for Flask (pe-payment)
+* decide on rollout strategy (Recreate vs RollingUpdate vs Canary)
 
 ### Kustomize
 
