@@ -33,6 +33,8 @@ kustomize
 
 ### Deployment
 
+From the project root:
+
 * observe what would be deployed: `kubectl kustomize kustomize/overlays/testing/ | less`
 * dry-run with client side strategy: `kubectl apply -k kustomize/overlays/testing/  --dry-run=client`
 * apply configuration: `kubectl apply -k kustomize/overlays/testing/`
@@ -49,22 +51,27 @@ kustomize
 
 ### Testing the deployment
 
-Observe logs:
+Observe deployment and logs:
 ```
+# antaeus startup takes time
+kubectl -n app-antaeus rollout status -w deployment antaeus
 kubectl -n app-antaeus logs deployment.apps/antaeus -f
+
 kubectl -n app-payment logs deployment.apps/payment -f
 ```
 
 For in-cluster testing the command `make shell-multitool` is provided. Once in the shell:
 ```
-curl http://payment.app-payment:9000/health
-curl http://antaeus.app-antaeus:8000/rest/health
+{
+  curl -i -w "\n" http://payment.app-payment:9000/health
+  curl -i -w "\n" http://antaeus.app-antaeus:8000/rest/health
+}
 
 # count number of PAID invoices
 curl -s http://antaeus.app-antaeus:8000/rest/v1/invoices | jq '[.[] | select(.status == "PAID") ] | length'
 
-# pay all invoices
-curl -X POST http://antaeus.app-antaeus:8000/rest/v1/invoices/pay
+# attempt to pay invoices
+curl -X POST -i -w "\n" http://antaeus.app-antaeus:8000/rest/v1/invoices/pay
 
 # count number of PAID invoices again
 curl -s http://antaeus.app-antaeus:8000/rest/v1/invoices | jq '[.[] | select(.status == "PAID") ] | length'
@@ -72,9 +79,9 @@ curl -s http://antaeus.app-antaeus:8000/rest/v1/invoices | jq '[.[] | select(.st
 
 ### External access
 
-The cluster where I did my exercise has no `cloud-controller-manager`. Therefore no `Ingress` is provided but instead more generic `NodePort` type `Service` is configured.
+The cluster where I did my exercise has no `cloud-controller-manager`. Therefore no `Ingress` is provided but instead a more generic `NodePort` type `Service` is configured.
 
-If `kube-proxy` is not restricted to specific IP addresses (and firewall rules also allow) the service should be available on nodes' external interfaces as well, so something like the following should work:
+If `kube-proxy` is not restricted to specific IP addresses (and firewall rules also allow) the service should be available on the nodes' external interfaces as well, so something like the following should work:
 ```
 NODE_IP="<external ip address>"
 curl http://$NODE_IP:30008/rest/health
